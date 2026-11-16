@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AR Nusantara – Jelajahi 5 Gunung Tertinggi Indonesia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e0b09;--card:#1a1411;--line:#3a2a20;--ink:#f6efe8;--mute:#a8998c;--api:#f97316;--ok:#a3e635}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:radial-gradient(ellipse at 50% 0,#2a1608 0,var(--bg) 55%) fixed;color:var(--ink);font:400 16px/1.6 'Plus Jakarta Sans',system-ui,sans-serif;min-height:100vh}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+:focus-visible{outline:2px solid var(--api);outline-offset:3px}
+.mono{font-family:'JetBrains Mono',monospace;font-size:.78rem}
+.wrap{max-width:1040px;margin:auto;padding:0 20px}
+/* nav */
+header{position:sticky;top:0;z-index:10;background:#0e0b09e6;backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;gap:16px;height:64px;flex-wrap:wrap}
+.brand{font-weight:800;margin-right:auto;display:flex;align-items:center;gap:10px}
+.brand i{width:34px;height:34px;border-radius:10px;background:var(--api);display:grid;place-items:center;font-style:normal}
+nav{display:flex;gap:4px}
+nav button{padding:6px 14px;border-radius:99px;color:var(--mute);font-size:.9rem}
+nav button.on{background:var(--api);color:#fff}
+.tools{display:flex;gap:8px;align-items:center}
+.pill{border:1px solid var(--line);border-radius:99px;padding:5px 12px;color:var(--mute)}
+.pill b{color:var(--ok)}
+.ic{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center}
+.ic.off{opacity:.4}
+/* views */
+.view{display:none;padding:48px 0 80px}.view.on{display:block;animation:in .35s}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+h1{font-size:clamp(2.6rem,9vw,6rem);font-weight:800;line-height:1;letter-spacing:-.04em}
+h2{font-size:clamp(2rem,5vw,3.2rem);line-height:1.1;letter-spacing:-.03em;margin:14px 0}
+.lead{color:var(--mute);max-width:56ch;margin:14px 0 24px}
+.btn{background:var(--api);color:#fff;padding:12px 22px;border-radius:12px;font-weight:700}
+.btn.ghost{background:none;border:1px solid var(--api);color:var(--ink)}
+/* hero */
+#mulai{text-align:center;min-height:calc(100vh - 64px);display:none;flex-direction:column;justify-content:center;align-items:center;position:relative}
+#mulai.on{display:flex}
+#mulai canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.55;z-index:-1}
+.play{width:128px;height:128px;border-radius:50%;background:var(--api);color:#fff;font-weight:800;letter-spacing:.2em;font-size:.7rem;box-shadow:0 0 0 14px #f973161f,0 0 60px #f9731666;margin:28px 0 14px;transition:transform .2s}
+.play:hover{transform:scale(1.06)}
+.stats{display:flex;border:1px solid var(--line);border-radius:18px;background:#1a1411cc;margin-top:36px}
+.stats div{padding:16px 32px;text-align:center}
+.stats div+div{border-left:1px solid var(--line)}
+.stats b{display:block;font:500 1.8rem 'JetBrains Mono',monospace;color:var(--ok)}
+.stats span{color:var(--mute);font-size:.78rem}
+/* kenali */
+.grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:16px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px}
+.tabs{display:flex;gap:6px;margin-bottom:14px}
+.tabs button{padding:6px 14px;border-radius:99px;color:var(--mute);border:1px solid transparent}
+.tabs button.on{background:var(--api);color:#fff}
+.box ul{margin:12px 0 0 18px;color:var(--mute)}
+.bar{margin:14px 0}
+.bar p{display:flex;justify-content:space-between;font-weight:700;font-size:.92rem}
+.bar p span{color:var(--api)}
+.bar div{height:8px;border-radius:9px;background:#2a1f18;margin-top:6px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--api),var(--ok));width:0;transition:width 1s .2s}
+.step{display:flex;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:12px;margin-top:8px;font-size:.9rem}
+.step.done{border-color:var(--ok)}
+/* kartu gunung */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;margin-top:24px}
+.card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;text-align:left;transition:.2s}
+.card:hover{border-color:var(--api);transform:translateY(-3px)}
+.card img{width:100%;height:170px;object-fit:cover;display:block}
+.card .t{padding:14px 16px}
+.card h3{font-size:1.15rem}
+.card small{color:var(--mute)}
+.card .h{color:var(--api)}
+.tag{position:absolute;top:10px;right:10px;background:var(--ok);color:#111;border-radius:99px;padding:2px 10px;font-size:.72rem;font-weight:700}
+/* detail */
+.det{display:grid;grid-template-columns:1fr 1.2fr;gap:28px;align-items:start}
+.det>img{width:100%;border-radius:18px;border:1px solid var(--line)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:22px 0}
+.facts div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 16px}
+.facts small{color:var(--mute);display:block}
+.ar{display:grid;grid-template-columns:1.2fr 1fr;gap:24px;align-items:center}
+.ar ol{padding-left:18px;color:var(--mute)}.ar li{margin:8px 0}.ar li b{color:var(--ink)}
+.ar img{width:100%;max-width:300px;border-radius:14px;justify-self:center;cursor:zoom-in}
+.pn{display:flex;gap:12px;margin-top:20px}
+.pn button{flex:1;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px}
+.pn button:hover{border-color:var(--api)}
+.pn small{color:var(--mute);display:block}
+/* tim */
+.team{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:28px 0}
+.team figure{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.team img{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:top;display:block}
+.team figcaption{padding:14px 16px;font-weight:700}
+.team small{display:block;color:var(--api);font-weight:500}
+dialog{border:0;background:#fff;border-radius:16px;padding:10px;max-width:92vw}
+dialog::backdrop{background:#000d}
+dialog img{max-width:100%;max-height:85vh;display:block}
+footer{border-top:1px solid var(--line);padding:24px 0;color:var(--mute);text-align:center;font-size:.85rem}
+@media(max-width:760px){.grid2,.det,.ar{grid-template-columns:1fr}.pill{display:none}header .wrap{height:auto;padding:10px 20px}.stats div{padding:12px 16px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.herobg{position:absolute;inset:0;z-index:-2;background:url(assets/hero/bromo.jpg) center 40%/cover;filter:saturate(.7) sepia(.45) hue-rotate(-12deg) brightness(.42) contrast(1.1)}
+.herobg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0e0b09cc 0,#0e0b0966 35%,#0e0b09aa 70%,#0e0b09 100%),radial-gradient(ellipse at 50% 45%,transparent 30%,#0e0b09 100%)}
+#mulai canvas{opacity:.22!important}
+.tabs{flex-wrap:wrap}
+.tabBody p{color:var(--mute);margin:8px 0}
+figure.peta{margin:14px 0 0}
+figure.peta img{width:100%;border-radius:12px;border:1px solid var(--line);filter:saturate(.85) brightness(.92)}
+figure.peta figcaption{color:var(--mute);font-size:.82rem;margin-top:8px}
+.facts .wide{grid-column:1/-1}
+.banner{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;border-color:var(--ok);margin:18px 0 0}
+dialog.rwd{background:var(--card);color:var(--ink);border:1px solid var(--api);padding:32px 28px;max-width:440px;text-align:center;box-shadow:0 0 80px #f9731655}
+dialog.rwd .em{font-size:3.4rem}
+dialog.rwd .chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:16px 0}
+dialog.rwd .chips span{border:1px solid var(--ok);color:var(--ok);border-radius:99px;padding:2px 12px;font-size:.78rem}
+dialog.rwd .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+.desc p+p{margin-top:.9em}
+</style>
+</head>
+<body>
+
+<header><div class="wrap">
+  <div class="brand"><i>▲</i><span>AR NUSANTARA</span></div>
+  <nav>
+    <button data-go="mulai" class="on">Mulai</button>
+    <button data-go="kenali">Nusantara</button>
+    <button data-go="gunung">Gunung</button>
+    <button data-go="kredit">Kredit</button>
+  </nav>
+  <div class="tools">
+    <span class="pill mono">MISI <b id="misi">0/5</b></span>
+    <button class="ic" id="btnMusik" title="Musik" aria-label="Musik">♫</button>
+    <button class="ic" id="btnSfx" title="Efek suara" aria-label="Efek suara">🔊</button>
+  </div>
+</div></header>
+
+<main>
+<!-- MULAI -->
+<section class="view on" id="mulai">
+  <div class="herobg"></div><canvas id="kontur"></canvas>
+  <p class="pill mono">MISI EDUKASI · AUGMENTED REALITY</p>
+  <h1 style="margin-top:20px">AR NUSANTARA</h1>
+  <p class="lead">Lima gunung tertinggi Indonesia menantimu. Tekan PLAY, kenali Cincin Api, lalu buka tiap gunung dan pindai kode AR-nya.</p>
+  <button class="play" id="play">▶<br>PLAY</button>
+  <p style="color:var(--mute)">Musik latar &amp; efek suara menyala otomatis saat PLAY</p>
+  <p class="pill mono" style="margin-top:12px">♫ About You · The 1975</p>
+  <div class="stats"><div><b>5</b><span>GUNUNG</span></div><div><b>4.884</b><span>METER TERTINGGI</span></div><div><b id="statBuka">0/5</b><span>SUDAH DIBUKA</span></div></div>
+</section>
+
+<!-- KENALI -->
+<section class="view" id="kenali"><div class="wrap">
+  <p class="pill mono" style="display:inline-block">SEKILAS INDONESIA</p>
+  <h2>Indonesia, Negeri di Atas <span style="color:var(--api)">Cincin Api</span></h2>
+  <p class="lead">Indonesia adalah negara kepulauan terbesar di dunia. Letaknya di garis khatulistiwa, di antara Benua Asia dan Australia serta Samudra Pasifik dan Hindia. Di balik hijaunya alam, negeri ini berdiri di atas pertemuan lempeng bumi, dan dari sanalah gunung-gunung tinggi itu lahir.</p>
+  <div class="stats" style="justify-content:center;margin:0 0 24px"><div><b>38</b><span>PROVINSI</span></div><div><b>17.000+</b><span>PULAU</span></div><div><b>127</b><span>GUNUNG API AKTIF</span></div></div>
+  <div class="grid2">
+    <div class="box">
+      <div class="tabs" id="tabs"><button class="on" data-t="0">Indonesia</button><button data-t="1">Cincin Api</button><button data-t="2">Kenapa Indonesia?</button><button data-t="3">Kenapa tingginya beda?</button></div>
+      <div id="tabBody" class="tabBody"></div>
+    </div>
+    <div class="box">
+      <p class="mono" style="color:var(--ok)">MISI KAMU</p>
+      <h3 style="margin:6px 0">Tiga langkah sampai puncak</h3>
+      <div class="step done">✔ Kenali Indonesia dan Cincin Api</div>
+      <div class="step" id="stp2">○ Buka 5 gunung tertinggi (<span id="stpN">0</span> dari 5)</div>
+      <div class="step" id="stp3">○ Pindai QR tiap gunung</div>
+    </div>
+  </div>
+  <div class="box" style="margin-top:16px">
+    <h3>Adu Tinggi: 5 Puncak Teratas</h3>
+    <p style="color:var(--mute);font-size:.85rem">Bandingkan ketinggiannya dari 0 sampai 4.884 mdpl. Klik satu batang untuk membuka gunungnya.</p>
+    <div id="tangga"></div>
+  </div>
+  <div class="box" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+    <div><b>Sudah kenal medannya? Saatnya bertemu gunungnya.</b><p style="color:var(--mute);font-size:.9rem">Tiap gunung punya data lengkap dan model 3D yang bisa kamu lihat lewat AR.</p></div>
+    <button class="btn" data-go="gunung">Lihat 5 Gunung</button>
+  </div>
+</div></section>
+
+<!-- GUNUNG -->
+<section class="view" id="gunung"><div class="wrap">
+  <p class="pill mono" style="display:inline-block">PILIH GUNUNGMU</p>
+  <h2>Top 5 Gunung Tertinggi di Indonesia</h2>
+  <p class="lead">Pahami karakteristiknya, lalu lihat bentuk 3D-nya lewat AR. Pilih satu gunung untuk mulai.</p>
+  <p class="mono" style="color:var(--ok)">KOLEKSI GUNUNG: <span id="kol">0/5</span></p>
+  <div class="cards" id="cards"></div>
+</div></section>
+
+<!-- DETAIL -->
+<section class="view" id="detail"><div class="wrap" id="detailBody"></div></section>
+
+<!-- KREDIT -->
+<section class="view" id="kredit"><div class="wrap">
+  <p class="pill mono" style="display:inline-block">DI BALIK LAYAR</p>
+  <h2>Kredit &amp; Tim Pembuat</h2>
+  <p class="lead">AR Nusantara dikerjakan oleh tiga orang: mulai dari riset data gunung, pemodelan 3D, sampai menyusun cerita Cincin Api untuk pelajar.</p>
+  <div class="team">
+    <figure><img src="assets/tim/syafitri.jpeg" alt="Syafitri Rysta Nugraha"><figcaption>Syafitri Rysta Nugraha<small>Tim AR Nusantara</small></figcaption></figure>
+    <figure><img src="assets/tim/adam.jpeg" alt="Adam Masda Putra"><figcaption>Adam Masda Putra<small>Tim AR Nusantara</small></figcaption></figure>
+    <figure><img src="assets/tim/naila.jpeg" alt="Naila Putri Maheswari"><figcaption>Naila Putri Maheswari<small>Tim AR Nusantara</small></figcaption></figure>
+  </div>
+  <div class="box" style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center">
+    <div><b>Tentang proyek</b><p style="color:var(--mute);font-size:.9rem;max-width:60ch">Proyek visualisasi informasi geospasial berbasis augmented reality. Gunung-gunung tertinggi Indonesia dimodelkan dalam 3D untuk edukasi, lalu dihubungkan ke kode QR yang bisa dipindai langsung dari halaman gunung.</p></div>
+    <button class="btn ghost" data-go="mulai">Kembali ke layar awal</button>
+  </div>
+</div></section>
+</main>
+
+<footer>© 2026 AR Nusantara · Dibuat untuk belajar sambil bermain · Pindai QR dengan kamera ponsel</footer>
+<dialog id="dlg"><img id="dlgImg" alt="Kode QR ukuran penuh"></dialog>
+<dialog class="rwd" id="rwd">
+  <div class="em">🏆</div>
+  <h2 style="margin:6px 0">Misi selesai!</h2>
+  <p style="color:var(--mute)">Kamu sudah mengenal 5 gunung tertinggi Indonesia. Lencana <b style="color:var(--api)">Penjelajah Cincin Api</b> sekarang jadi milikmu.</p>
+  <div class="chips"><span>Puncak Jaya</span><span>Kerinci</span><span>Rinjani</span><span>Semeru</span><span>Latimojong</span></div>
+  <p style="color:var(--mute);font-size:.9rem">Penasaran siapa yang membuat semua ini?</p>
+  <div class="row"><button class="btn" data-go="kredit">Lihat tim pembuat</button><button class="btn ghost">Tutup</button></div>
+</dialog>
+<audio id="bgm" src="assets/audio/about-you.mp3" loop preload="none"></audio>
+
+<script>
+/* ===== DATA GUNUNG: edit teks di sini ===== */
+const G=[
+ {id:'puncak-jaya',n:'Puncak Jaya',alt:'Carstensz Pyramid',m:4884,lok:'Papua · Papua Tengah',kab:'Kabupaten Mimika, Papua Tengah',pulau:'Papua',tipe:'Puncak batuan (bukan gunung api)',aktif:'Tidak aktif, batuan beku',tahun:'1962 oleh Heinrich Harrer',jalur:'Jalur bebas / panjat tebing',tag:'Atap Indonesia, satu dari Seven Summits',
+  img:'assets/gunung/puncak-jaya.webp',qr:'assets/qr/puncak-jaya.jpeg',api:false,
+  desc:'<p><b>Puncak Jaya</b> merupakan titik tertinggi di Indonesia dengan ketinggian mencapai 4.884 mdpl dan menjadi bagian dari rangkaian Pegunungan Sudirman di Papua Tengah. Kawasan ini memiliki bentang alam pegunungan yang khas, berupa deretan puncak tinggi dengan relief terjal dan formasi batuan yang menonjol.</p><p>Selain <b>Puncak Jaya</b> atau Carstensz Pyramid sebagai puncak utamanya, terdapat beberapa puncak lain yang berada dalam satu kompleks pegunungan, di antaranya <b>Puncak Sumantri</b> dan <b>Ngga Pulu</b>. Ketiga puncak tersebut memiliki posisi yang saling berdekatan dan membentuk rangkaian bentang alam pegunungan yang saling terhubung.</p><p><b>Puncak Sumantri</b> berada di sebelah utara <b>Puncak Jaya</b>, sedangkan <b>Ngga Pulu</b> terletak tidak jauh dari keduanya. Karakteristik kawasan ini semakin khas dengan keberadaan gletser tropis di sekitar puncak-puncaknya, yang menjadi salah satu fenomena alam langka di wilayah khatulistiwa. Namun, tutupan es tersebut terus mengalami penyusutan akibat perubahan kondisi iklim. Keberadaan deretan puncak dengan karakteristik medan berbatu, lereng curam, dan sisa tutupan es menjadikan kawasan <b>Puncak Jaya</b> sebagai salah satu bentang alam pegunungan paling khas di Indonesia.</p>'},
+ {id:'kerinci',n:'Gunung Kerinci',alt:'Gunung Api Kerinci',m:3805,lok:'Sumatra · Jambi',kab:'Kerinci, Jambi (TN Kerinci Seblat)',pulau:'Sumatra',tipe:'Stratovolcano',aktif:'Aktif',tahun:'-',jalur:'Pendakian via Kersik Tuo',tag:'Gunung berapi tertinggi di Sumatra',
+  img:'assets/gunung/kerinci.webp',qr:'assets/qr/kerinci.jpeg',api:true,
+  desc:'Gunung Kerinci adalah gunung api tertinggi di Indonesia dan puncak tertinggi di Pulau Sumatra. Bentuknya kerucut sempurna, dikelilingi hamparan kebun teh Kayu Aro yang hijau. Gunung ini masih aktif dan sesekali mengeluarkan asap tipis dari kawahnya.'},
+ {id:'rinjani',n:'Gunung Rinjani',alt:'Gunung Rinjani',m:3726,lok:'Lombok · Nusa Tenggara Barat',kab:'Lombok, Nusa Tenggara Barat',pulau:'Lombok',tipe:'Stratovolcano dengan kaldera',aktif:'Aktif',tahun:'-',jalur:'Sembalun, Senaru, Torean',tag:'Puncak di atas Danau Segara Anak',
+  img:'assets/gunung/rinjani.webp',qr:'assets/qr/rinjani.jpeg',api:true,
+  desc:'Gunung Rinjani memiliki kaldera luas berisi Danau Segara Anak yang berwarna kehijauan. Di tengah danau muncul kerucut kecil bernama Gunung Barujari yang masih aktif. Rinjani menjadi salah satu tujuan pendakian paling populer di Indonesia.'},
+ {id:'semeru',n:'Gunung Semeru',alt:'Mahameru',m:3676,lok:'Jawa · Jawa Timur',kab:'Lumajang dan Malang, Jawa Timur',pulau:'Jawa',tipe:'Stratovolcano',aktif:'Sangat aktif',tahun:'-',jalur:'Ranu Pani menuju Ranu Kumbolo',tag:'Puncak tertinggi Tanah Jawa',
+  img:'assets/gunung/semeru.webp',qr:'assets/qr/semeru.jpeg',api:true,
+  desc:'Gunung Semeru, dengan puncaknya Mahameru, adalah titik tertinggi di Pulau Jawa. Gunung ini erupsi hampir setiap beberapa menit sehingga kolom abunya sering terlihat dari kejauhan. Jalur pendakiannya melewati Ranu Kumbolo, danau yang sangat terkenal.'},
+ {id:'latimojong',n:'Gunung Latimojong',alt:'Rante Mario',m:3478,lok:'Sulawesi · Sulawesi Selatan',kab:'Enrekang, Sulawesi Selatan',pulau:'Sulawesi',tipe:'Pegunungan batuan',aktif:'Tidak aktif',tahun:'-',jalur:'Pendakian via Karangan',tag:'Atap Pulau Sulawesi',
+  img:'assets/gunung/latimojong.webp',qr:'assets/qr/latimojong.png',api:false,
+  desc:'Gunung Latimojong adalah puncak tertinggi di Pulau Sulawesi. Berbeda dengan gunung api lain di daftar ini, Latimojong berupa pegunungan batuan dengan hutan lebat yang dihuni banyak flora dan fauna endemik Sulawesi.'}
+];
+const EXTRA={
+ 'puncak-jaya':{prov:'Papua Tengah',akt:'Tidak aktif (bukan gunung api)',fakta:'Salah satu dari sedikit tempat di dekat khatulistiwa yang masih punya gletser, meski esnya terus menyusut.'},
+ 'kerinci':{prov:'Jambi',akt:'Aktif',fakta:'Gunung api tertinggi di Indonesia, berdiri di tengah hamparan kebun teh Kayu Aro.'},
+ 'rinjani':{prov:'Nusa Tenggara Barat',akt:'Aktif',fakta:'Menyimpan Danau Segara Anak di dalam kaldera, dengan kerucut Barujari yang masih aktif di tengahnya.'},
+ 'semeru':{prov:'Jawa Timur',akt:'Sangat aktif, sering erupsi kecil',fakta:'Puncaknya bernama Mahameru, yang berarti gunung agung dalam tradisi Jawa.'},
+ 'latimojong':{prov:'Sulawesi Selatan',akt:'Tidak aktif (bukan gunung api)',fakta:'Hutannya menjadi rumah bagi flora dan fauna khas Sulawesi yang tidak ditemukan di tempat lain.'}
+};
+G.forEach(g=>Object.assign(g,EXTRA[g.id]));
+const TAB=[
+ ['<b>Mengenal Indonesia</b><p>Indonesia adalah negara kepulauan terbesar di dunia dengan lebih dari 17.000 pulau, dari Sabang sampai Merauke. Lima pulau terbesarnya adalah Sumatra, Jawa, Kalimantan, Sulawesi, dan Papua.</p><ul><li>Dilewati garis khatulistiwa, sehingga beriklim tropis</li><li>Terletak di antara dua benua (Asia dan Australia) dan dua samudra (Hindia dan Pasifik)</li><li>Memiliki 38 provinsi dengan keragaman alam dan budaya yang sangat luas</li></ul>'],
+ ['<b>Apa itu Cincin Api Pasifik?</b><p>Cincin Api atau <i>Ring of Fire</i> adalah jalur berbentuk tapal kuda sepanjang sekitar 40.000 km yang mengelilingi Samudra Pasifik. Di sepanjang jalur ini lempeng-lempeng bumi saling bertabrakan, bergesekan, dan menyusup satu sama lain.</p><ul><li>Tempat terjadinya sekitar 75% letusan gunung api di dunia</li><li>Tempat terjadinya sekitar 90% gempa bumi dunia</li><li>Membentang dari Chili, Amerika Utara, Jepang, Filipina, hingga Indonesia dan Selandia Baru</li></ul>'],
+ ['<b>Kenapa Indonesia termasuk Cincin Api?</b><p>Indonesia berada di titik temu tiga lempeng besar: Indo-Australia, Eurasia, dan Pasifik. Lempeng Indo-Australia menyusup ke bawah Lempeng Eurasia di selatan Sumatra, Jawa, dan Nusa Tenggara. Saat menunjam, lempeng itu meleleh dan magmanya naik ke permukaan, membentuk rangkaian gunung api.</p><figure class="peta"><img src="assets/peta/ring-of-fire.jpg" alt="Peta Cincin Api Pasifik yang melewati Indonesia"><figcaption>Garis putus-putus merah menunjukkan Cincin Api Pasifik. Indonesia berada di sisi baratnya.</figcaption></figure>'],
+ ['<b>Kenapa tingginya berbeda-beda?</b><p>Tinggi gunung bergantung pada umur dan jenis batuan penyusunnya. Gunung api muda yang masih sering meletus biasanya menjulang dengan kerucut tajam, sementara gunung tua lebih lama terkikis hujan dan angin sehingga tampak membulat. Puncak batuan seperti Puncak Jaya justru terangkat oleh tumbukan lempeng, bukan oleh letusan.</p><ul><li>Kerucut muda: lebih tinggi dan tajam</li><li>Gunung tua: terkikis, lebih rendah</li><li>Puncak batuan: terangkat oleh tumbukan lempeng</li></ul><p>Karena itu, dari lima gunung di daftar ini, hanya tiga yang benar-benar gunung api (Kerinci, Rinjani, Semeru). Puncak Jaya dan Latimojong adalah pegunungan batuan.</p>']
+];
+/* ===== STATE ===== */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+let buka=new Set(), musikOn=true, sfxOn=true, started=false;
+try{buka=new Set(JSON.parse(localStorage.getItem('arn-buka')||'[]'))}catch(e){}
+/* ===== SUARA ===== */
+const bgm=$('#bgm'); bgm.volume=.45;
+let ac; function bip(f=660,d=.12){ if(!sfxOn)return; try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;o.type='triangle';g.gain.setValueAtTime(.12,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.connect(g).connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){} }
+$('#btnMusik').onclick=e=>{musikOn=!musikOn;e.currentTarget.classList.toggle('off',!musikOn);musikOn&&started?bgm.play():bgm.pause()};
+$('#btnSfx').onclick=e=>{sfxOn=!sfxOn;e.currentTarget.classList.toggle('off',!sfxOn)};
+/* ===== NAVIGASI ===== */
+function go(v,push=true){
+  $$('.view').forEach(s=>s.classList.toggle('on',s.id===v));
+  $$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===(v==='detail'?'gunung':v)));
+  scrollTo(0,0); bip(520,.08);
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)go(b.dataset.go)});
+$('#play').onclick=()=>{started=true;bip(880,.25);if(musikOn)bgm.play().catch(()=>{});go('kenali')};
+/* ===== MISI ===== */
+function refresh(){
+  const n=buka.size;
+  $('#misi').textContent=n+'/5';$('#statBuka').textContent=n+'/5';$('#kol').textContent=n+'/5';$('#stpN').textContent=n;
+  $('#stp2').className='step'+(n===5?' done':'');$('#stp2').firstChild.textContent=n===5?'✔ ':'○ ';
+  $('#stp3').className='step'+(n===5?' done':'');
+  try{localStorage.setItem('arn-buka',JSON.stringify([...buka]))}catch(e){}
+  renderCards();
+}
+/* ===== KENALI ===== */
+function tab(i){$('#tabBody').innerHTML=TAB[i][0];$$('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t==i))}
+$('#tabs').onclick=e=>{if(e.target.dataset.t){tab(e.target.dataset.t);bip(600,.06)}};tab(0);
+$('#tangga').innerHTML=G.map((g,i)=>`<div class="bar" style="cursor:pointer" data-open="${g.id}"><p><span style="color:var(--ink)">${i+1}. ${g.n}</span><span>${g.m.toLocaleString('id-ID')} mdpl</span></p><div><i style="--w:${g.m/4884*100}%"></i></div></div>`).join('');
+new MutationObserver(()=>{ $$('#tangga i').forEach(i=>i.style.width=$('#kenali').classList.contains('on')?i.style.getPropertyValue('--w'):'0') }).observe($('#kenali'),{attributes:true});
+/* ===== KARTU ===== */
+function renderCards(){
+  $('#cards').innerHTML=G.map((g,i)=>`<button class="card" data-open="${g.id}"><img src="${g.img}" alt="${g.n}" loading="lazy">${buka.has(g.id)?'<span class="tag">✔ Terbuka</span>':''}<div class="t"><small class="mono h">${g.m.toLocaleString('id-ID')} mdpl</small><h3>${i+1}. ${g.n}</h3><small>📍 ${g.lok}<br>${g.tag}</small></div></button>`).join('');
+}
+document.addEventListener('click',e=>{const c=e.target.closest('[data-open]');if(c)tampil(c.dataset.open)});
+/* ===== DETAIL ===== */
+function tampil(id){
+  const i=G.findIndex(g=>g.id===id),g=G[i];
+  if(!buka.has(id)){buka.add(id);bip(990,.3);}
+  const lengkap=buka.size===5;
+  const prev=i>0?`<button data-open="${G[i-1].id}"><small>Sebelumnya</small><b>${G[i-1].n}</b></button>`:`<button data-go="gunung"><small>Kembali</small><b>Daftar gunung</b></button>`;
+  const next=i<4?`<button data-open="${G[i+1].id}" style="text-align:right"><small>Berikutnya</small><b>${G[i+1].n}</b></button>`
+    :(lengkap?`<button data-reward style="text-align:right;border-color:var(--ok)"><small>Semua gunung terbuka</small><b>Selesai dan klaim reward 🏆</b></button>`
+             :`<button data-go="gunung" style="text-align:right"><small>Masih ada gunung lain</small><b>Kembali ke daftar</b></button>`);
+  $('#detailBody').innerHTML=`
+  <button class="pill" data-go="gunung">← Kembali ke 5 gunung</button>
+  ${lengkap?`<div class="box banner"><div><b>🏆 Semua gunung sudah kamu buka!</b><p style="color:var(--mute);font-size:.9rem">Klaim lencanamu untuk menyelesaikan misi.</p></div><button class="btn" data-reward>Klaim reward</button></div>`:''}
+  <div class="det" style="margin-top:20px">
+    <img src="${g.img}" alt="${g.n}">
+    <div><p class="pill mono" style="display:inline-block">#${i+1} INDONESIA</p>
+      <h2>${g.n}</h2><p class="mono" style="color:var(--mute)">${g.alt}</p>
+      <p style="color:var(--api);margin:10px 0">${g.tag}</p><div class="desc">${g.desc}</div>
+      <p style="color:var(--mute);margin-top:10px">📍 ${g.kab}</p></div>
+  </div>
+  <div class="facts">
+    <div><small>Ketinggian</small><b>${g.m.toLocaleString('id-ID')} mdpl</b></div>
+    <div><small>Pulau</small><b>${g.pulau}</b></div>
+    <div><small>Provinsi</small><b>${g.prov}</b></div>
+    <div><small>Jenis gunung</small><b>${g.tipe}</b></div>
+    <div><small>Aktivitas gunung api</small><b>${g.akt}</b></div>
+    <div class="wide"><small>Fakta menarik</small><b>${g.fakta}</b></div>
+  </div>
+  <div class="box ar"><div>
+    <h3>Visualisasi AR: ${g.n}</h3><p class="mono" style="color:var(--mute);margin-bottom:10px">SCAN · PUTAR · PELAJARI</p>
+    <ol><li><b>Langkah 1.</b> Buka kamera ponsel atau Google Lens yang bisa memindai kode QR. Tidak perlu memasang aplikasi tambahan.</li><li><b>Langkah 2.</b> Arahkan kamera ke kode QR gunung ini.</li><li><b>Langkah 3.</b> Amati model 3D dan penjelasannya. Putar, geser, dan perbesar untuk mempelajari karakteristik ${g.n}.</li></ol>
+    <p style="color:var(--mute);font-size:.85rem;margin-top:12px">Gunakan pencahayaan cukup dan letakkan kode QR di permukaan datar.</p>
+    <button class="btn ghost" style="margin-top:14px" data-zoom="${g.qr}">Buka kartu QR ukuran penuh</button></div>
+    <img src="${g.qr}" alt="Kode QR AR ${g.n}" data-zoom="${g.qr}"></div>
+  <div class="pn">${prev}${next}</div>`;
+  go('detail'); refresh();
+}
+document.addEventListener('click',e=>{if(e.target.closest('[data-reward]')){[660,880,1100].forEach((f,k)=>setTimeout(()=>bip(f,.25),k*140));$('#rwd').showModal()}});
+$('#rwd').addEventListener('click',e=>{if(e.target.closest('button')||e.target===$('#rwd'))$('#rwd').close()});
+document.addEventListener('click',e=>{const z=e.target.closest('[data-zoom]');if(z){$('#dlgImg').src=z.dataset.zoom;$('#dlg').showModal()}});
+$('#dlg').onclick=()=>$('#dlg').close();
+/* ===== LATAR KONTUR (hero) ===== */
+(function(){const c=$('#kontur'),x=c.getContext('2d');let t=0;
+ function size(){c.width=c.offsetWidth;c.height=c.offsetHeight}size();addEventListener('resize',size);
+ function draw(){x.clearRect(0,0,c.width,c.height);x.lineWidth=1;
+  for(let k=0;k<26;k++){x.beginPath();x.strokeStyle=`hsla(${22+k*1.4},90%,${38+k}%,.35)`;
+   for(let i=0;i<=c.width;i+=8){const y=c.height*.45+k*14+Math.sin(i*.008+k*.4+t)*(40+k*2)+Math.sin(i*.021-t*.7)*14;i?x.lineTo(i,y):x.moveTo(i,y)}x.stroke()}
+  t+=matchMedia('(prefers-reduced-motion:reduce)').matches?0:.006;requestAnimationFrame(draw)}draw()})();
+refresh();
+</script>
+</body>
+</html>
